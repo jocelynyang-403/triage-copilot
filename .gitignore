@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+kb_store/
+*.db
+evals/results/
+evals/golden.draft.jsonl
+.DS_Store
+.streamlit/secrets.toml
