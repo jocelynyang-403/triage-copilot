@@ -4,7 +4,8 @@ __pycache__/
 .env
 kb_store/
 *.db
-evals/results/
+evals/results/*
+!evals/results/.gitkeep
 evals/golden.draft.jsonl
 .DS_Store
 .streamlit/secrets.toml
