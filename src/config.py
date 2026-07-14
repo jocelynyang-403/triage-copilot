@@ -12,8 +12,8 @@ if not ANTHROPIC_API_KEY:
         "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key."
     )
 
-CLASSIFY_MODEL = "claude-haiku-4-5"   # verify current ID at build time
-GENERATE_MODEL = "claude-sonnet-5"    # verify current ID at build time
-DATASET_MODEL = "claude-sonnet-5"     # verify current ID at build time
+CLASSIFY_MODEL = "claude-haiku-4-5"   # supports temperature (verified 2026-07-12)
+GENERATE_MODEL = "claude-sonnet-5"    # temperature DEPRECATED — do NOT pass temperature=
+DATASET_MODEL  = "claude-sonnet-5"    # temperature DEPRECATED — do NOT pass temperature=
 
 CATEGORIES = ["billing", "bug", "access_request", "sales_lead", "other"]

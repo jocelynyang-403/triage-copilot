@@ -66,10 +66,12 @@ def build_prompt(category: str) -> str:
 Here are two seed examples to anchor tone and variety (do NOT copy them verbatim):
 {seeds}
 
-Generate {TICKETS_PER_CATEGORY} NEW, realistic, and VARIED tickets for this category.
-Vary the phrasing, length, tone, and urgency across the set. Some should include
-concrete details like order IDs (e.g. #48211) or error codes (e.g. ERR_500); others
-should be short and vague. Make them feel like real messages from different people.
+Generate 10 tickets that are clearly different from one another. Vary the
+phrasing, the message length (from a single line to a full paragraph), the
+tone (frustrated / polite / terse / confused), and the urgency level. Some
+tickets should include concrete details such as order IDs or error codes;
+others should be vague and underspecified. Do not reuse sentence templates
+or openings across tickets.
 
 For each ticket, also propose DRAFT labels (these are best-effort guesses):
 - "id": a short unique slug, e.g. "{category}-01"
@@ -84,8 +86,22 @@ Return ONLY a JSON array of {TICKETS_PER_CATEGORY} objects with exactly those ke
 No prose, no markdown fences — just the raw JSON array."""
 
 
-def _extract_json_array(text: str) -> list:
+def _extract_json_array(text) -> list:
     """Parse a JSON array from the model response, tolerating stray formatting."""
+    # response.content may be a plain string or a list of content blocks
+    # (e.g. [{"type": "text", "text": "..."}]); normalize to a single string.
+    if isinstance(text, list):
+        pieces = []
+        for item in text:
+            if isinstance(item, str):
+                pieces.append(item)
+            elif isinstance(item, dict):
+                pieces.append(item.get("text", ""))
+            elif hasattr(item, "text"):
+                pieces.append(getattr(item, "text"))
+            else:
+                pieces.append(str(item))
+        text = "".join(pieces)
     text = text.strip()
     if text.startswith("```"):
         # Strip a leading ```json / ``` fence and the trailing fence if present.
@@ -96,7 +112,10 @@ def _extract_json_array(text: str) -> list:
     start = text.find("[")
     end = text.rfind("]")
     if start == -1 or end == -1:
-        raise ValueError("No JSON array found in model response.")
+        raise ValueError(
+            f"No JSON array found in model response. Normalized text was: "
+            f"{text[:800]!r}"
+        )
     return json.loads(text[start : end + 1])
 
 
@@ -110,8 +129,9 @@ def main() -> None:
 
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
 
-    # temperature ~0.9 on purpose: we WANT variety in the generated data.
-    llm = ChatAnthropic(model=DATASET_MODEL, temperature=0.9, max_tokens=4096)
+    # Sonnet has deprecated the temperature parameter; diversity is driven by the
+    # prompt instead (see build_prompt).
+    llm = ChatAnthropic(model=DATASET_MODEL, max_tokens=4096)
 
     all_tickets = []
     for category in CATEGORIES:
