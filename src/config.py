@@ -17,3 +17,6 @@ GENERATE_MODEL = "claude-sonnet-5"    # temperature DEPRECATED — do NOT pass t
 DATASET_MODEL  = "claude-sonnet-5"    # temperature DEPRECATED — do NOT pass temperature=
 
 CATEGORIES = ["billing", "bug", "access_request", "sales_lead", "other"]
+
+DESTINATIONS = ["Sales", "Billing Ops", "Engineering", "IT / Access", "Support", "Human Review"]
+PRIORITIES = ["P0", "P1", "P2", "P3"]
