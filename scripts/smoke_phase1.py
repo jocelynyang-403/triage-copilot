@@ -100,8 +100,8 @@ def main():
         cat_ok = pred_cat in CATEGORIES
         pri_ok = pred_pri in PRIORITIES
         dest_ok = pred_dest is not None and pred_dest in DESTINATIONS
-        action_ok = pred_action == "escalate"
-        trace_ok = len(trace) == 3
+        action_ok = pred_action in ("auto_reply", "escalate")
+        trace_ok = len(trace) == 4   # intake, classify, knowledge, route
 
         row_fails = []
         if not cat_ok:
@@ -111,9 +111,9 @@ def main():
         if not dest_ok:
             row_fails.append("destination {!r} not in DESTINATIONS".format(pred_dest))
         if not action_ok:
-            row_fails.append("action {!r} != 'escalate'".format(pred_action))
+            row_fails.append("action {!r} not in (auto_reply, escalate)".format(pred_action))
         if not trace_ok:
-            row_fails.append("len(trace) == {} (expected 3)".format(len(trace)))
+            row_fails.append("len(trace) == {} (expected 4)".format(len(trace)))
 
         if row_fails:
             failures.append((r.get("id"), row_fails))
